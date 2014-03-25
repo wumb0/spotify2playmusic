@@ -86,14 +86,16 @@ def get_playlist(spot):
     return spotify_playlists[option-1]
 
 def is_similar(title1, artist1, album1, title2, artist2, album2):
-    title1 = title1.split("(")[0]
-    artist1 = artist1.split("(")[0]
-    album1 = album1.split("(")[0]
-    title2 = title2.split("(")[0]
-    artist2 = artist2.split("(")[0]
-    album2 = album2.split("(")[0]
+    title1alt = title1.split("(")[0]
+    artist1alt = artist1.split("(")[0]
+    album1alt = album1.split("(")[0]
+    title2alt = title2.split("(")[0]
+    artist2alt = artist2.split("(")[0]
+    album2alt = album2.split("(")[0]
 
-    if (levenshtein(title1,title2) < 4 and levenshtein(artist1, artist2) < 5 and levenshtein(album1, album2) < 5):
+    if (levenshtein(title1,title2) < 2 and levenshtein(artist1, artist2) < 2 and levenshtein(album1, album2) < 2):
+        return True
+    elif (levenshtein(title1alt,title2alt) < 4 and levenshtein(artist1alt, artist2alt) < 5 and levenshtein(album1alt, album2alt) < 5):
         return True
     else:
         return False
@@ -127,38 +129,39 @@ def main():
         artist = track.artists[0].load().name
         album = track.album.load().name
         query = title + " " + artist + " " + album
-        print query
         unmatched = True
         for i in gpm_local:
             if is_similar(title, artist, album, i['title'], i['artist'], i['album']):
-                print("Found a match in local library: " + i['title'])
+                print("Found a match in uploaded library: " + i['title'] + " - " + i['artist'])
                 unmatched = False
                 to_add_list.append(i['nid'])
                 break
         if unmatched:
             unmatched_tracks.append(track)
 
-#    print("Now searching All Access for the remaining tracks")
-#    for track in unmatched_tracks:
-#        track = track.load()
-#        title = track.name
-#        artist = track.artists[0].load().name
-#        album = track.album.load().name
-#        query = title + " " + artist
-#        print query
-#        unmatched = True
-#        result = gpm.search_all_access(query, max_results = 1)['song_hits'][0]
-#        if is_similar(title, artist, album, result['title'], result['artist'], result['album']):
-#            print("Found a match in local library: " + i['title'])
-#            unmatched = False
-#            unmatched_tracks.delete(track)
-#            to_add_list.append(i['nid'])
-#            break
+    print("Now searching All Access for the remaining tracks")
+    for track in unmatched_tracks:
+        track = track.load()
+        title = track.name
+        artist = track.artists[0].load().name
+        album = track.album.load().name
+        query = title + " " + artist
+        unmatched = True
+        try:
+            result = gpm.search_all_access(query, max_results = 1)['song_hits'][0]['track']
+            if is_similar(title, artist, album, result['title'], result['artist'], result['album']):
+                print("Found a match in All Access: " + result['title'] + " - " + result['artist'])
+                unmatched = False
+                unmatched_tracks.remove(track)
+                to_add_list.append(result['nid'])
+        except:
+            pass
 
-    print("Adding matched songs to playlist")
+    print("Adding matched songs to playlist\n")
     for to_add in to_add_list:
         gpm.add_songs_to_playlist(gpm_new_playlist_id, to_add)
-    print("Unmatched tracks")
+
+    print("Unmatched tracks:")
     for unmatched_track in unmatched_tracks:
-        print(unmatched_track.load().name)
+        print(unmatched_track.load().name + " - " + unmatched_track.load().artists[0].load().name)
 main()
