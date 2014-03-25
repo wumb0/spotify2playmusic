@@ -2,6 +2,11 @@
 import spotify
 from gmusicapi import Mobileclient
 from os import system
+import threading
+
+logged_in_event = threading.Event()
+def logged_in_listener(session, error_type):
+    logged_in_event.set()
 
 def get_password(prompt):
     #from http://scrollingtext.org/hiding-keyboard-input-screen
@@ -22,9 +27,17 @@ def login_gpm():
         return gpm
 
 def login_spotify(spot):
-    username = raw_input("Enter your Spotify username: ")
-    password = get_password("Enter your Spotify password: ")
-    if not spot.login(username, password):
+    #username = raw_input("Enter your Spotify username: ")
+    #password = get_password("Enter your Spotify password: ")
+    file = open('spotify_creds', 'r')
+    username = file.readline().rstrip('\n')
+    password = file.readline().rstrip('\n')
+    file.close()
+    spot.login(username, password)
+    spot.on(spotify.SessionEvent.LOGGED_IN, logged_in_listener)
+    while not logged_in_event.wait(0.1):
+        spot.process_events()
+    if (spot.user is None):
         print("\nNot a valid login")
         exit()
     else:
@@ -36,7 +49,11 @@ def main():
     config.user_agent = 'spotify2playmusic'
     config.tracefile = b'/tmp/libspotify-trace.log'
     spot = spotify.Session(config=config)
-    gpm = login_gpm()
+    #gpm = login_gpm()
     spot = login_spotify(spot)
-
+    playlists = spot.playlist_container
+    playlists.load()
+    print(playlists.is_load)
+    for playlist in playlists:
+        print(str(playlist.name))
 main()
