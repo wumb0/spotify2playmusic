@@ -53,12 +53,16 @@ def main():
     config.user_agent = 'spotify2playmusic'
     config.tracefile = b'/tmp/libspotify-trace.log'
     spot = spotify.Session(config=config)
-    #gpm = login_gpm()
+    gpm = login_gpm()
     spot = login_spotify(spot)
     playlists = spot.playlist_container
     playlists.load()
-    print(playlists.is_loaded)
     for playlist in playlists:
-        if type(playlist) is spotify.playlist.Playlist:
-            print(playlist.load().name)
+        if type(playlist) is spotify.playlist.Playlist and playlist.load().name == "Test Playlist":
+            for track in playlist.load().tracks:
+                printstr = ""
+                printstr += track.load().name + " - "
+                printstr += track.load().artists[0].load().name + " - "
+                printstr += track.load().album.load().name
+                print(printstr)
 main()
