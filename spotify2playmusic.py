@@ -21,10 +21,9 @@ def login_gpm():
         print("\nLogin success!")
         return gpm
 
-def login_spotify():
+def login_spotify(spot):
     username = raw_input("Enter your Spotify username: ")
     password = get_password("Enter your Spotify password: ")
-    spot = spotify.Session()
     if not spot.login(username, password):
         print("\nNot a valid login")
         exit()
@@ -33,8 +32,11 @@ def login_spotify():
         return spot
 
 def main():
+    config = spotify.Config()
+    config.user_agent = 'spotify2playmusic'
+    config.tracefile = b'/tmp/libspotify-trace.log'
+    spot = spotify.Session(config=config)
     gpm = login_gpm()
-    spot = login_spotify()
-
+    spot = login_spotify(spot)
 
 main()
