@@ -16,8 +16,12 @@ def get_password(prompt):
     return password
 
 def login_gpm():
-    username = raw_input("Enter your Google Play username: ")
-    password = get_password("Enter your Google Play password: ")
+    #username = raw_input("Enter your Google Play username: ")
+    #password = get_password("Enter your Google Play password: ")
+    file = open('play_creds', 'r')
+    username = file.readline().rstrip('\n')
+    password = file.readline().rstrip('\n')
+    file.close()
     gpm = Mobileclient()
     if not gpm.login(username, password):
         print("\nNot a valid login")
@@ -53,7 +57,8 @@ def main():
     spot = login_spotify(spot)
     playlists = spot.playlist_container
     playlists.load()
-    print(playlists.is_load)
+    print(playlists.is_loaded)
     for playlist in playlists:
-        print(str(playlist.name))
+        if type(playlist) is spotify.playlist.Playlist:
+            print(playlist.load().name)
 main()
