@@ -6,19 +6,19 @@ There are a few requirements...<br>
 
 Requirements
 ------------
-<p>Spotify Premium<br>
+Spotify Premium<br>
 A Spotify Developer Key<br>
 libspotify<br>
 pyspotify<br>
 gmusicapi<br>
-<b>Strongly</b> Recommended: Google Music All Access (has not been tested without it)</p>
+**Strongly** Recommended: Google Music All Access (has not been tested without it)
 
 <h5>Spotify Developer Key</h5>
-<p>Go to [The Spotify Developer Page](https://devaccount.spotify.com/my-account/keys/), login, and get a key<br>
-Put it in the same directory as spotify2playmusic. It won't work at all without the key.</p>
+Go to [The Spotify Developer Page](https://devaccount.spotify.com/my-account/keys/), login, and get a key<br>
+Put it in the same directory as spotify2playmusic. It won't work at all without the key.
 
 <h5>libspotify and pyspotify</h5>
-<p>Go to the [pyspotify installation page](http://pyspotify.mopidy.com/en/latest/installation/) and follow the instructions to install libspotify and pyspotify for your OS (you will be using pip)</p>
+Go to the [pyspotify installation page](http://pyspotify.mopidy.com/en/latest/installation/) and follow the instructions to install libspotify and pyspotify for your OS (you will be using pip)
 
 <h5>gmusicapi</h5>
 <p>Use pip.</p>
