@@ -150,10 +150,10 @@ def is_similar(title1, artist1, album1, title2, artist2, album2):
         threshold1 -= 3
         threshold2 -= 1
     if len(title1) < 13 or len(title1alt) < 13:
-        threshold1 -= 3
+        threshold1 -= 2
         threshold2 -= 1
     if len(title2) < 13 or len(title2alt) < 13:
-        threshold1 -= 3
+        threshold1 -= 2
         threshold2 -= 1
     if len(album1) < 12 or len(album1alt) < 12:
         threshold1 -= 3
