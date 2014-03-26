@@ -3,6 +3,7 @@ import spotify
 from gmusicapi import Mobileclient
 from os import system
 import threading
+from sys import stdout
 
 def levenshtein(a,b):
 #from http://hetland.org/coding/python/levenshtein.py
@@ -86,16 +87,20 @@ def get_playlist(spot):
     return spotify_playlists[option-1]
 
 def is_similar(title1, artist1, album1, title2, artist2, album2):
-    title1alt = title1.split("(")[0]
-    artist1alt = artist1.split("(")[0]
-    album1alt = album1.split("(")[0]
-    title2alt = title2.split("(")[0]
-    artist2alt = artist2.split("(")[0]
-    album2alt = album2.split("(")[0]
+    title1alt = title1.split("(")[0].split("[")[0]
+    artist1alt = artist1.split("(")[0].split("[")[0]
+    album1alt = album1.split("(")[0].split("[")[0]
+    title2alt = title2.split("(")[0].split("[")[0]
+    artist2alt = artist2.split("(")[0].split("[")[0]
+    album2alt = album2.split("(")[0].split("[")[0]
 
-    if (levenshtein(title1,title2) < 2 and levenshtein(artist1, artist2) < 2 and levenshtein(album1, album2) < 2):
+    if title1 is title2 and artist1 is artist2:
         return True
-    elif (levenshtein(title1alt,title2alt) < 4 and levenshtein(artist1alt, artist2alt) < 5 and levenshtein(album1alt, album2alt) < 5):
+    elif title1alt is title2alt and artist1alt is artist2alt:
+        return True
+    elif (levenshtein(title1,title2) + levenshtein(artist1, artist2) + levenshtein(album1, album2) < 10):
+        return True
+    elif (levenshtein(title1alt,title2alt) < 5 and levenshtein(artist1alt, artist2alt) < 5 and levenshtein(album1alt, album2alt) < 5):
         return True
     else:
         return False
@@ -117,46 +122,55 @@ def main():
         print("Playlist already exists in Google Play... exiting")
         exit()
 
-    gpm_new_playlist_id = gpm.create_playlist(playlist.load().name)
     to_add_list = []
     unmatched_tracks = []
 
     print("Searching in uploaded music first...")
     gpm_local = gpm.get_all_songs()
+    progress = 0
     for track in playlist.load().tracks:
+        progress += 1
         track = track.load()
         title = track.name
         artist = track.artists[0].load().name
         album = track.album.load().name
-        query = title + " " + artist + " " + album
+        stdout.flush()
+        stdout.write("%i%% - %s - %s" % (((float(progress) / float(len(playlist.load().tracks))) * 100.0), title, artist))
         unmatched = True
         for i in gpm_local:
             if is_similar(title, artist, album, i['title'], i['artist'], i['album']):
-                print("Found a match in uploaded library: " + i['title'] + " - " + i['artist'])
+                print(" - Found a match in uploaded library: " + i['title'] + " - " + i['artist'])
                 unmatched = False
-                to_add_list.append(i['nid'])
+                to_add_list.append(i['id'])
                 break
         if unmatched:
             unmatched_tracks.append(track)
+        stdout.write("\b" * 500)
 
     print("Now searching All Access for the remaining tracks")
+    progress = 0
     for track in unmatched_tracks:
+        progress +=1
         track = track.load()
         title = track.name
         artist = track.artists[0].load().name
         album = track.album.load().name
         query = title + " " + artist
+        stdout.flush()
+        stdout.write("%i%% - %s - %s" % (((float(progress) / float(len(playlist.load().tracks))) * 100.0), title, artist))
         unmatched = True
         try:
             result = gpm.search_all_access(query, max_results = 1)['song_hits'][0]['track']
             if is_similar(title, artist, album, result['title'], result['artist'], result['album']):
-                print("Found a match in All Access: " + result['title'] + " - " + result['artist'])
+                print("- Found a match in All Access: " + result['title'] + " - " + result['artist'])
                 unmatched = False
                 unmatched_tracks.remove(track)
                 to_add_list.append(result['nid'])
         except:
             pass
+        stdout.write("\b" * 500)
 
+    gpm_new_playlist_id = gpm.create_playlist(playlist.load().name)
     print("Adding matched songs to playlist\n")
     for to_add in to_add_list:
         gpm.add_songs_to_playlist(gpm_new_playlist_id, to_add)
