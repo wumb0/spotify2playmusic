@@ -29,7 +29,7 @@ pip install gmusicapi
 Bugs/Limitations
 ----------------
 - It's pretty slow, but at least you don't have to copy everything over by hand
-..- It is slow because it does its best to match things. It uses the levenshtein calculation to figure out how different two strings are. That number is then used to determine if the strings are similar enough to be a match. If they are then the song is added to the array of songs to be added to the new playlist on google play music.
+    - It is slow because it does its best to match things. It uses the levenshtein calculation to figure out how different two strings are. That number is then used to determine if the strings are similar enough to be a match. If they are then the song is added to the array of songs to be added to the new playlist on google play music.
 - Some songs don't match right. By trying to make it match variations it does its best to weed out the bad matches, sometimes it works, sometimes it doesn't. Overall it is pretty accurate though
 - Sometimes it crashes randomly. No idea why.
 
