@@ -89,7 +89,7 @@ def get_playlist(spot):
     return spotify_playlists[option-1]
 
 def is_similar(title1, artist1, album1, title2, artist2, album2):
-    threshold1 = 15
+    threshold1 = 13
     threshold2 = 10
     try:
         title1alt = title1.split("(")[0].split("[")[0]
@@ -107,53 +107,61 @@ def is_similar(title1, artist1, album1, title2, artist2, album2):
     except:
         artist1, artist2, artist1alt, artist2alt = "none", "none", "none", "none"
 
-    if len(artist1) < 10 or len(artist1alt) < 10:
+    if len(title1) < 7 or len(title1alt) < 7:
+        threshold1 -= 1
+        threshold2 -= 1
+
+    if len(title2) < 7 or len(title2alt) < 7:
+        threshold1 -= 1
+        threshold2 -= 1
+
+    if len(artist1) < 12 or len(artist1alt) < 12:
         threshold1 -= 2
         threshold2 -= 1
 
-    if len(artist2) < 10 or len(artist2alt) < 10:
+    if len(artist2) < 12 or len(artist2alt) < 12:
         threshold1 -= 2
         threshold2 -= 1
 
-    if len(title1) < 10 or len(title1alt) < 10:
+    if len(title1) < 12 or len(title1alt) < 12:
         threshold1 -= 2
         threshold2 -= 1
 
-    if len(title2) < 10 or len(title2alt) < 10:
+    if len(title2) < 12 or len(title2alt) < 12:
         threshold1 -= 2
         threshold2 -= 1
 
-    if len(album1) < 10 or len(album1alt) < 10:
+    if len(album1) < 12 or len(album1alt) < 12:
         threshold1 -= 2
         threshold2 -= 1
 
-    if len(album2) < 10 or len(album2alt) < 10:
+    if len(album2) < 12 or len(album2alt) < 12:
         threshold1 -= 2
         threshold2 -= 1
 
     if len(artist1) > 25 or len(artist1alt) > 25:
-        threshold1 -= 4
-        threshold2 -= 2
+        threshold1 += 3
+        threshold2 += 2
 
     if len(artist2) > 25 or len(artist2alt) > 25:
-        threshold1 -= 4
-        threshold2 -= 2
+        threshold1 += 3
+        threshold2 += 2
 
     if len(title1) > 25 or len(title1alt) > 25:
-        threshold1 -= 4
-        threshold2 -= 2
+        threshold1 += 3
+        threshold2 += 2
 
     if len(title2) > 25 or len(title2alt) > 25:
-        threshold1 -= 4
-        threshold2 -= 2
+        threshold1 += 3
+        threshold2 += 2
 
     if len(album1) > 25 or len(album1alt) > 25:
-        threshold1 -= 4
-        threshold2 -= 2
+        threshold1 += 3
+        threshold2 += 2
 
     if len(album2) > 25 or len(album2alt) > 25:
-        threshold1 -= 4
-        threshold2 -= 2
+        threshold1 += 3
+        threshold2 += 2
 
 
     if title1 is title2 and artist1 is artist2 and not artist2 is "none":
@@ -208,7 +216,7 @@ def main():
         if unmatched:
             unmatched_tracks.append(track)
 
-    print("Now searching All Access for the remaining tracks")
+    print("Now searching All Access for the remaining tracks...")
     progress = 0
     for track in unmatched_tracks:
         progress +=1
