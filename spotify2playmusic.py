@@ -104,26 +104,26 @@ def is_similar(title1, artist1, album1, title2, artist2, album2):
 
     #two thresholds explained later
     threshold1 = 14
-    threshold2 = 10
+    threshold2 = 9
 
     #the next few statements attempt to remove extra stuff from songs
     #"The City (Extended Mix)" may not match, so we have an alternate for each field that removes
     #things in brackets, parentheses, and things after dashes
     try:
-        title1alt = title1.split("(")[0].split("[")[0].split["-"][0]
-        title2alt = title2.split("(")[0].split("[")[0].split["-"][0]
+        title1alt = title1.split("(")[0].split("[")[0]
+        title2alt = title2.split("(")[0].split("[")[0]
     except:
-        #if the song does not have a title then just return fals
+        #if the song does not have a title then just return false
         return False
     try:
-        album2alt = album2.split("(")[0].split("[")[0].split["-"][0]
-        album1alt = album1.split("(")[0].split("[")[0].split["-"][0]
+        album2alt = album2.split("(")[0].split("[")[0]
+        album1alt = album1.split("(")[0].split("[")[0]
     except:
         #if one of the parts of the comparison is blank then just make everything the same
         album1, album2, album1alt, album2alt = "none", "none", "none", "none"
     try:
-        artist1alt = artist1.split("(")[0].split("[")[0].split["-"][0]
-        artist2alt = artist2.split("(")[0].split("[")[0].split["-"][0]
+        artist1alt = artist1.split("(")[0].split("[")[0]
+        artist2alt = artist2.split("(")[0].split("[")[0]
     except:
         #same as above
         artist1, artist2, artist1alt, artist2alt = "none", "none", "none", "none"
@@ -149,10 +149,10 @@ def is_similar(title1, artist1, album1, title2, artist2, album2):
     if len(artist2) < 12 or len(artist2alt) < 12:
         threshold1 -= 3
         threshold2 -= 1
-    if len(title1) < 12 or len(title1alt) < 12:
+    if len(title1) < 13 or len(title1alt) < 13:
         threshold1 -= 3
         threshold2 -= 1
-    if len(title2) < 12 or len(title2alt) < 12:
+    if len(title2) < 13 or len(title2alt) < 13:
         threshold1 -= 3
         threshold2 -= 1
     if len(album1) < 12 or len(album1alt) < 12:
@@ -168,10 +168,10 @@ def is_similar(title1, artist1, album1, title2, artist2, album2):
         threshold1 += 2
         threshold2 += 1
     if len(title1) > 25 or len(title1alt) > 25:
-        threshold1 += 2
+        threshold1 += 3
         threshold2 += 1
     if len(title2) > 25 or len(title2alt) > 25:
-        threshold1 += 2
+        threshold1 += 3
         threshold2 += 1
     if len(album1) > 25 or len(album1alt) > 25:
         threshold1 += 2
@@ -228,6 +228,7 @@ def main():
     #searches user uploaded music first
     print("Searching in uploaded music first...")
     gpm_local = gpm.get_all_songs()
+    print("Database loaded!")
     progress = 0
     for track in playlist.load().tracks:
         progress += 1
@@ -239,27 +240,33 @@ def main():
         stdout.flush()
         stdout.write("%i%% - %s - %s     \r" % (((float(progress) / float(len(playlist.load().tracks))) * 100.0), title, artist))
         unmatched = True
-        top3 = {}
-        to_push = ""
+        top5 = {}
+        to_push_id = ""
         #checks against every song in the google play library and finds the
-        #top 3 hits, then the one with the lowest levenshtein number is chosen
+        #top 5 hits, then the one with the lowest levenshtein number is chosen
         for i in gpm_local:
             if is_similar(title, artist, album, i['title'], i['artist'], i['album']):
                 print(" - Found a match in uploaded library: " + i['title'] + " - " + i['artist'] + "     ")
                 unmatched = False
-                top3[i['title']] = i['id']
-            if len(top3) == 3:
+                top5[i['title']] = i['id']
+                to_push_id = i['id']
+            if len(top5) == 5:
                 break
+        if len(top5) > 1:
             lowest_score = 999999
-        if len(top3) > 1:
-            for top in top3.keys():
+            winning_track = ""
+            for top in top5.keys():
                 val = levenshtein(title, top)
                 if val < lowest_score:
                     lowest_score = val
-                    to_push = top3[top]
+                    to_push_id = top5[top]
+                    winning_track = top
+            if winning_track is not "":
+                print("Going with the closest match: " + winning_track)
         if unmatched:
             unmatched_tracks.append(track)
-        to_add_list.append(to_push)
+        if to_push_id is not "":
+            to_add_list.append(to_push_id)
 
     #all remaining unmatched tracks are searched in All Access
     print("Now searching All Access for the remaining tracks...")
