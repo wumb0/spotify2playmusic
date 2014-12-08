@@ -67,7 +67,7 @@ def login_spotify(spot):
     #file.close()
     spot.login(username, password)
     spot.on(spotify.SessionEvent.LOGGED_IN, logged_in_listener)
-    while not logged_in_event.wait(0.1):
+    while session.connection_state != spotify.ConnectionState.LOGGED_IN:
         spot.process_events()
     if (spot.user is None):
         print("\nNot a valid login")
@@ -129,7 +129,7 @@ def is_similar(title1, artist1, album1, title2, artist2, album2):
         artist1, artist2, artist1alt, artist2alt = "none", "none", "none", "none"
 
     #the next 16 statements modify the threshold according to the name length
-    #this is to allow songs with shorter details to have less variability and 
+    #this is to allow songs with shorter details to have less variability and
     #songs with longer details to have higher variablility
     #will probably replace with ratio based on length so the threshold
     #is dynamically modified
@@ -288,7 +288,7 @@ def main():
         #the same album, this will increase the chance of matching
         #I trust google's search function :)
         try:
-            result = gpm.search_all_access(query, max_results = 1)['song_hits'][0]['track']
+            result = gpm.search_all_access(query, max_results = 10)['song_hits'][0]['track']
             if is_similar(title, artist, album, result['title'], result['artist'], result['album']):
                 print(" - Found a match in All Access: " + result['title'] + " - " + result['artist'] + "     ")
                 unmatched = False
@@ -299,7 +299,7 @@ def main():
 
         if len(unmatched_tracks) != 0 and unmatched == True:
             try:
-                result = gpm.search_all_access(query, max_results = 1)['song_hits'][0]['track']
+                result = gpm.search_all_access(query, max_results = 10)['song_hits'][0]['track']
                 if is_similar(title, artist, "analbumthebest", result['title'], result['artist'], "analbumthebest"):
                     print(" - Found a match in All Access: " + result['title'] + " - " + result['artist'] + "     ")
                     unmatched = False
