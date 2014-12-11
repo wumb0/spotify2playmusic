@@ -67,7 +67,7 @@ def login_spotify(spot):
     #file.close()
     spot.login(username, password)
     spot.on(spotify.SessionEvent.LOGGED_IN, logged_in_listener)
-    while spot.connection_state != spotify.ConnectionState.LOGGED_IN:
+    while spot.connection.state != spotify.ConnectionState.LOGGED_IN:
         spot.process_events()
     if (spot.user is None):
         print("\nNot a valid login")
