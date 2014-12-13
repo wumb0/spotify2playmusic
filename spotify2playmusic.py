@@ -275,9 +275,9 @@ def main():
     for track in tracks_to_match:
         progress +=1
         track = track.load()
-        title = track.name
-        artist = track.artists[0].load().name
-        album = track.album.load().name
+        title = track.name.lower()
+        artist = track.artists[0].load().name.lower()
+        album = track.album.load().name.lower()
         #only searches for title and artist because google play does not return
         #the correct results when album is included
         query = title + " " + artist
@@ -293,11 +293,11 @@ def main():
         except:
             print "Something went wrong while trying to search All Access."
 
-        if is_similar(title, artist, album, result['title'], result['artist'], result['album']):
+        if is_similar(title, artist, album, result['title'].lower(), result['artist'].lower(), result['album']):
             print(" - Found a match in All Access: " + result['title'] + " - " + result['artist'] + "     ")
             unmatched = False
             to_add_list.append(result['nid'])
-        elif is_similar(title, artist, "analbumthebest", result['title'], result['artist'], "analbumthebest"):
+        elif is_similar(title, artist, "analbumthebest", result['title'].lower(), result['artist'].lower(), "analbumthebest"):
             print(" - Found a match in All Access: " + result['title'] + " - " + result['artist'] + "     ")
             unmatched = False
             to_add_list.append(result['nid'])
