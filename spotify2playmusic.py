@@ -222,6 +222,7 @@ def main():
 
     #there will be two lists: one of tracks to be added and another
     #of songs that could not be matched
+    tracks_to_match = []
     to_add_list = []
     unmatched_tracks = []
 
@@ -264,19 +265,19 @@ def main():
             if winning_track is not "":
                 print("Going with the closest match: " + winning_track)
         if unmatched:
-            unmatched_tracks.append(track)
+            tracks_to_match.append(track)
         if to_push_id is not "":
             to_add_list.append(to_push_id)
 
     #all remaining unmatched tracks are searched in All Access
     print("Now searching All Access for the remaining tracks...")
     progress = 0
-    for track in unmatched_tracks:
+    for track in tracks_to_match:
         progress +=1
         track = track.load()
-        title = track.name
-        artist = track.artists[0].load().name
-        album = track.album.load().name
+        title = track.name.lower()
+        artist = track.artists[0].load().name.lower()
+        album = track.album.load().name.lower()
         #only searches for title and artist because google play does not return
         #the correct results when album is included
         query = title + " " + artist
@@ -289,24 +290,19 @@ def main():
         #I trust google's search function :)
         try:
             result = gpm.search_all_access(query, max_results = 10)['song_hits'][0]['track']
-            if is_similar(title, artist, album, result['title'], result['artist'], result['album']):
-                print(" - Found a match in All Access: " + result['title'] + " - " + result['artist'] + "     ")
-                unmatched = False
-                unmatched_tracks.remove(track)
-                to_add_list.append(result['nid'])
         except:
-            pass
+            print "Something went wrong while trying to search All Access."
 
-        if len(unmatched_tracks) != 0 and unmatched == True:
-            try:
-                result = gpm.search_all_access(query, max_results = 10)['song_hits'][0]['track']
-                if is_similar(title, artist, "analbumthebest", result['title'], result['artist'], "analbumthebest"):
-                    print(" - Found a match in All Access: " + result['title'] + " - " + result['artist'] + "     ")
-                    unmatched = False
-                    unmatched_tracks.remove(track)
-                    to_add_list.append(result['nid'])
-            except:
-                pass
+        if is_similar(title, artist, album, result['title'].lower(), result['artist'].lower(), result['album']):
+            print(" - Found a match in All Access: " + result['title'] + " - " + result['artist'] + "     ")
+            unmatched = False
+            to_add_list.append(result['nid'])
+        elif is_similar(title, artist, "analbumthebest", result['title'].lower(), result['artist'].lower(), "analbumthebest"):
+            print(" - Found a match in All Access: " + result['title'] + " - " + result['artist'] + "     ")
+            unmatched = False
+            to_add_list.append(result['nid'])
+        else:
+            unmatched_tracks.append(track)
 
     #add the new playlist and all of the identified songs songs to it
     gpm_new_playlist_id = gpm.create_playlist(playlist.load().name)
