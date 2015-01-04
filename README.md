@@ -18,7 +18,10 @@ Go to [The Spotify Developer Page](https://devaccount.spotify.com/my-account/key
 Put it in the same directory as spotify2playmusic. It won't work at all without the key.
 
 <h5>libspotify and pyspotify</h5>
-Go to the [pyspotify installation page](http://pyspotify.mopidy.com/en/latest/installation/) and follow the instructions to install libspotify and pyspotify for your OS (you will be using pip)
+Go to the [pyspotify installation page](http://pyspotify.mopidy.com/en/latest/installation/) and follow the instructions to install libspotify and pyspotify for your OS (you will be using pip). Make sure you install the beta version of pyspotify (shown below) if the regular version doesn't work for you. Users on Ubuntu have reported this as a necessary step.
+```sh
+pip install --pre pyspotify
+```
 
 <h5>gmusicapi</h5>
 <p>Use pip.</p>
