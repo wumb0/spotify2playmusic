@@ -233,7 +233,7 @@ def main():
     progress = 0
     for track in playlist.load().tracks:
         progress += 1
-        track = track.load()
+        track = track.load(timeout=30)
         title = track.name
         artist = track.artists[0].load().name
         album = track.album.load().name
