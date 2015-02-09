@@ -9,6 +9,8 @@ from gmusicapi import Mobileclient
 from os import system
 import threading
 from sys import stdout
+from time import sleep
+from gmusicapi.exceptions import CallFailure
 
 def levenshtein(a,b):
 #from http://hetland.org/coding/python/levenshtein.py
@@ -238,8 +240,8 @@ def main():
         artist = track.artists[0].load().name
         album = track.album.load().name
         #for progress
-        stdout.flush()
         stdout.write("%i%% - %s - %s     \r" % (((float(progress) / float(len(playlist.load().tracks))) * 100.0), title, artist))
+        stdout.flush()
         unmatched = True
         top5 = {}
         to_push_id = ""
@@ -290,25 +292,30 @@ def main():
         #I trust google's search function :)
         try:
             result = gpm.search_all_access(query, max_results = 10)['song_hits'][0]['track']
+            if is_similar(title, artist, album, result['title'].lower(), result['artist'].lower(), result['album']):
+                print(" - Found a match in All Access: " + result['title'] + " - " + result['artist'] + "     ")
+                unmatched = False
+                to_add_list.append(result['nid'])
+            elif is_similar(title, artist, "analbumthebest", result['title'].lower(), result['artist'].lower(), "analbumthebest"):
+                print(" - Found a match in All Access: " + result['title'] + " - " + result['artist'] + "     ")
+                unmatched = False
+                to_add_list.append(result['nid'])
+            else:
+                unmatched_tracks.append(track)
         except:
             print "Something went wrong while trying to search All Access."
 
-        if is_similar(title, artist, album, result['title'].lower(), result['artist'].lower(), result['album']):
-            print(" - Found a match in All Access: " + result['title'] + " - " + result['artist'] + "     ")
-            unmatched = False
-            to_add_list.append(result['nid'])
-        elif is_similar(title, artist, "analbumthebest", result['title'].lower(), result['artist'].lower(), "analbumthebest"):
-            print(" - Found a match in All Access: " + result['title'] + " - " + result['artist'] + "     ")
-            unmatched = False
-            to_add_list.append(result['nid'])
-        else:
-            unmatched_tracks.append(track)
 
     #add the new playlist and all of the identified songs songs to it
     gpm_new_playlist_id = gpm.create_playlist(playlist.load().name)
     print("Adding matched songs to playlist\n")
     for to_add in to_add_list:
-        gpm.add_songs_to_playlist(gpm_new_playlist_id, to_add)
+        try:
+            print("Adding song to playlist %s\n" % to_add)
+            gpm.add_songs_to_playlist(gpm_new_playlist_id, to_add)
+            sleep(0.2) 
+        except CallFailure, e:
+            print e
 
     #show the unmatched tracks
     print("Unmatched tracks:")
