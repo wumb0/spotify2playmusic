@@ -302,8 +302,8 @@ def main():
                 to_add_list.append(result['nid'])
             else:
                 unmatched_tracks.append(track)
-        except:
-            print "Something went wrong while trying to search All Access."
+        except Exception, e:
+            print "Something went wrong while trying to search All Access...\n{}".format(str(e))
 
 
     #add the new playlist and all of the identified songs songs to it
